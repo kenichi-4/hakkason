@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 void setupMMA8452Q();
-void printMMA8452Q();
+float getTotalAcceleration();
+void printPeakAcceleration();
 
 #endif
