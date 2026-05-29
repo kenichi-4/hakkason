@@ -1,6 +1,6 @@
-#include "b.h"
-#include "c.h"
-#include "d.h"
+#include "data_acquisition.h"
+#include "acceleration_processing.h"
+#include "peak_detection.h"
 
 void setup()
 {
@@ -13,4 +13,5 @@ void loop()
   float moveAccel = getMoveAcceleration();
   updatePeakAcceleration(moveAccel);
 
+  delay(50);
 }

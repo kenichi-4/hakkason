@@ -1,5 +1,5 @@
-#ifndef B_H
-#define B_H
+#ifndef DATA_ACQUISITION_H
+#define DATA_ACQUISITION_H
 
 #include <Arduino.h>
 
