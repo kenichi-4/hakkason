@@ -2,25 +2,33 @@
 #define MOTION_FILTER_H
 
 #include <Arduino.h>
+#include "IMUReader.h"
 
-// 重力除去後の加速度
-extern float filterAx;
-extern float filterAy;
-extern float filterAz;
+class MotionFilter {
+public:
+  MotionFilter();
 
-// 合成加速度
-extern float totalAccel;
+  // 加速度データから重力成分を除去
+  IMUData removeGravity(IMUData data);
 
-// 平滑化後の合成加速度
-extern float smoothAccel;
+  // 3軸加速度から合成加速度を算出
+  float calcMotion(IMUData data);
 
-// 重力成分を除去する関数
-void removeGravity(float ax, float ay, float az);
+  // 合成加速度を平滑化
+  float smooth(float motion);
 
-// 3軸加速度から合成加速度を計算する関数
-void calcMotion();
+private:
+  float gravityX;
+  float gravityY;
+  float gravityZ;
 
-// 合成加速度を平滑化する関数
-void smoothMotion();
+  static const int SMOOTH_SIZE = 5;
+  float motionBuffer[SMOOTH_SIZE];
+
+  int bufferIndex;
+  bool bufferFilled;
+
+  const float GRAVITY_ALPHA = 0.9;
+};
 
 #endif

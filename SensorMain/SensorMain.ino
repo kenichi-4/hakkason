@@ -1,15 +1,18 @@
 #include "IMUReader.h"
 #include "MotionFilter.h"
 
+IMUReader imu;
+MotionFilter filter;
+
 const unsigned long SAMPLE_INTERVAL = 10;
 unsigned long lastSampleTime = 0;
 
 void setup() {
   Serial.begin(115200);
 
-  setupIMU();
+  imu.begin();
 
-  Serial.println("time,ax,ay,az,gx,gy,gz,filterAx,filterAy,filterAz,totalAccel,smoothAccel");
+  Serial.println("time,ax,ay,az,gx,gy,gz,filterAx,filterAy,filterAz,motion,smoothMotion");
 }
 
 void loop() {
@@ -18,44 +21,44 @@ void loop() {
   if (now - lastSampleTime >= SAMPLE_INTERVAL) {
     lastSampleTime = now;
 
-    // IMUから加速度・角速度を取得
-    readIMU();
+    // IMUデータ取得
+    IMUData data = imu.readIMU();
 
-    // 加速度データから重力成分を除去
-    removeGravity(ax, ay, az);
+    // 重力除去
+    IMUData filterData = filter.removeGravity(data);
 
-    // 3軸加速度から合成加速度を算出
-    calcMotion();
+    // 合成加速度の算出
+    float motion = filter.calcMotion(filterData);
 
-    // 合成加速度を平滑化
-    smoothMotion();
+    // 平滑化処理
+    float smoothMotion = filter.smooth(motion);
 
     Serial.print(now);
     Serial.print(",");
 
-    Serial.print(ax);
+    Serial.print(data.ax);
     Serial.print(",");
-    Serial.print(ay);
+    Serial.print(data.ay);
     Serial.print(",");
-    Serial.print(az);
-    Serial.print(",");
-
-    Serial.print(gx);
-    Serial.print(",");
-    Serial.print(gy);
-    Serial.print(",");
-    Serial.print(gz);
+    Serial.print(data.az);
     Serial.print(",");
 
-    Serial.print(filterAx);
+    Serial.print(data.gx);
     Serial.print(",");
-    Serial.print(filterAy);
+    Serial.print(data.gy);
     Serial.print(",");
-    Serial.print(filterAz);
+    Serial.print(data.gz);
     Serial.print(",");
 
-    Serial.print(totalAccel);
+    Serial.print(filterData.ax);
     Serial.print(",");
-    Serial.println(smoothAccel);
+    Serial.print(filterData.ay);
+    Serial.print(",");
+    Serial.print(filterData.az);
+    Serial.print(",");
+
+    Serial.print(motion);
+    Serial.print(",");
+    Serial.println(smoothMotion);
   }
 }

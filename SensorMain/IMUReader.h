@@ -4,23 +4,32 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-// MPU6050のI2Cアドレス
-#define MPU_ADDR 0x68
+// IMUから取得したデータをまとめる構造体
+struct IMUData {
+  float ax;
+  float ay;
+  float az;
 
-// 加速度データ
-extern float ax;
-extern float ay;
-extern float az;
+  float gx;
+  float gy;
+  float gz;
+};
 
-// 角速度データ
-extern float gx;
-extern float gy;
-extern float gz;
+class IMUReader {
+public:
+  IMUReader();
 
-// IMUセンサの初期化
-void setupIMU();
+  // MPU6050の初期化
+  bool begin();
 
-// IMUセンサから加速度・角速度を取得
-void readIMU();
+  // 加速度・角速度データを取得
+  IMUData readIMU();
+
+private:
+  const uint8_t MPU_ADDR = 0x68;
+
+  // MPU6050のレジスタへ値を書き込む
+  void writeRegister(uint8_t reg, uint8_t value);
+};
 
 #endif
