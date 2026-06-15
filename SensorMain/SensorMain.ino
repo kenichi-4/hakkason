@@ -4,15 +4,23 @@
 IMUReader imu;
 MotionFilter filter;
 
+// センサ取得間隔 10ms
 const unsigned long SAMPLE_INTERVAL = 10;
 unsigned long lastSampleTime = 0;
 
+// ピーク値を出す区間 1000ms = 1秒
+const unsigned long PEAK_INTERVAL = 1000;
+unsigned long lastPeakOutputTime = 0;
+
+// 一定区間内の最大値
+float peakValue = 0.0;
+
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   imu.begin();
 
-  Serial.println("time,ax,ay,az,gx,gy,gz,filterAx,filterAy,filterAz,motion,smoothMotion");
+  Serial.println("time,peakValue");
 }
 
 void loop() {
@@ -21,44 +29,33 @@ void loop() {
   if (now - lastSampleTime >= SAMPLE_INTERVAL) {
     lastSampleTime = now;
 
-    // IMUデータ取得
+    // 1. IMUデータ取得
     IMUData data = imu.readIMU();
 
-    // 重力除去
+    // 2. 重力成分を除去
     IMUData filterData = filter.removeGravity(data);
 
-    // 合成加速度の算出
+    // 3. 合成加速度を算出
     float motion = filter.calcMotion(filterData);
 
-    // 平滑化処理
+    // 4. 平滑化
     float smoothMotion = filter.smooth(motion);
+
+    // 5. 一定区間内の最大値を記録
+    if (smoothMotion > peakValue) {
+      peakValue = smoothMotion;
+    }
+  }
+
+  // 1秒ごとにピーク値を出力してリセット
+  if (now - lastPeakOutputTime >= PEAK_INTERVAL) {
+    lastPeakOutputTime = now;
 
     Serial.print(now);
     Serial.print(",");
+    Serial.println(peakValue);
 
-    Serial.print(data.ax);
-    Serial.print(",");
-    Serial.print(data.ay);
-    Serial.print(",");
-    Serial.print(data.az);
-    Serial.print(",");
-
-    Serial.print(data.gx);
-    Serial.print(",");
-    Serial.print(data.gy);
-    Serial.print(",");
-    Serial.print(data.gz);
-    Serial.print(",");
-
-    Serial.print(filterData.ax);
-    Serial.print(",");
-    Serial.print(filterData.ay);
-    Serial.print(",");
-    Serial.print(filterData.az);
-    Serial.print(",");
-
-    Serial.print(motion);
-    Serial.print(",");
-    Serial.println(smoothMotion);
+    // 次の区間のためにリセット
+    peakValue = 0.0;
   }
 }
