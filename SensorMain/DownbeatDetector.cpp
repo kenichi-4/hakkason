@@ -12,13 +12,7 @@ DownbeatDetector::DownbeatDetector() {
 }
 
 bool DownbeatDetector::detectDownbeat(IMUData data, bool peakDetected, unsigned long now) {
-  if (!data.valid) {
-    return false;
-  }
 
-  if (!peakDetected) {
-    return false;
-  }
 
   if (now - lastDownbeatTime < minInterval) {
     return false;

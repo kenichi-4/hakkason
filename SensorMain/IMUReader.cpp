@@ -34,7 +34,7 @@ IMUData IMUReader::readIMU() {
   int16_t rawAy = Wire.read() << 8 | Wire.read();
   int16_t rawAz = Wire.read() << 8 | Wire.read();
 
-  // 温度データは使用しないため読み飛ばす
+  // 温度データ
   Wire.read();
   Wire.read();
 
