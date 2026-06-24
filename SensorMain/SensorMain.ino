@@ -1,11 +1,3 @@
-// =============================================================
-//  SensorMain.ino
-//
-//  設計書のセンサ制御フロー：
-//    IMU取得 → 前処理 → 拍/ダウンビート検出 → BPM算出
-//    → テンポ3段階化 → START/テンポ情報送信
-// =============================================================
-
 #include "IMUReader.h"
 #include "MotionFilter.h"
 #include "BeatDetector.h"
@@ -15,7 +7,7 @@
 
 IMUReader        imu;             // センサ読み取り
 MotionFilter     filter;          // 重力除去・平滑化
-BeatDetector     beatDetector;    // 1拍区間の「強さ」管理（強弱演出用・テンポには未使用）
+BeatDetector     beatDetector;    // 1拍区間の「強さ」管理
 DownbeatDetector downbeatDetector;// 振り下ろし検出＋間隔測定
 TempoCalculator  tempo;           // 間隔→BPM→3段階
 SensorSender     sender;          // START/テンポ情報送信
@@ -67,21 +59,21 @@ void loop() {
   }
   lastSampleTime = now;
 
-  // --- ① センサから読む ---
+  // センサから読む
   IMUData data = imu.readIMU();
 
-  // --- ② 前処理（重力除去 → 合成 → 平滑化）---
+  //  前処理
   IMUData filterData  = filter.removeGravity(data);
   float   motion      = filter.calcMotion(filterData);
   float   smoothMotion = filter.smooth(motion);
 
-  // --- ③ ダウンビート（振り下ろし）を検出 ---
+  // ダウンビート
   bool downbeatDetected = downbeatDetector.detectDownbeat(data, now);
 
-  // --- ④ 強さ(peak)を管理（テンポには使わないが残しておく）---
+  // peak
   beatDetector.update(smoothMotion, downbeatDetected);
 
-  // --- ⑤ 振り下ろしが来た時だけ、テンポを計算して表示 ---
+  // 振り下ろしが来た時だけ、テンポを計算して表示 
   if (downbeatDetected) {
     unsigned long itv = downbeatDetector.getInterval();
 
@@ -104,7 +96,6 @@ void loop() {
 
       sender.sendTempo(tempo.getBPM(), sendLevel);
 
-      // CSV形式：時刻,間隔,BPM,段階,送信値
       Serial.print(now);          Serial.print(",");
       Serial.print(itv);          Serial.print(",");
       Serial.print(tempo.getBPM()); Serial.print(",");
