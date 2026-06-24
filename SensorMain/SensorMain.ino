@@ -23,23 +23,18 @@ void setup() {
   imu.begin();
   sender.begin();
 
-  // ----- ダウンビート検知の設定（★実機で振って調整する値）-----
-  downbeatDetector.setAxis(0);                  // gx（実測で確認した軸に合わせる）
-  downbeatDetector.setDirection(-1);            // 振り下ろしでgxがマイナスなら-1
-  downbeatDetector.setDownGyroThreshold(80.0);  // 振り下ろしの強さの下限
-  downbeatDetector.setSideRatio(1.2);           // 横振りを除外する強さ
-  downbeatDetector.setMinInterval(600);         // 連続検知を防ぐ最小間隔[ms]
-                                                // ※300だと1回の振りの「揺り戻し」を
-                                                //   二度検出してしまう（約306msの幽霊検出）。
-                                                //   600に上げて1振り=1検出にする。
+  // ダウンビート検知設定
+  downbeatDetector.setAxis(0);
+  downbeatDetector.setDirection(-1);
+  downbeatDetector.setDownGyroThreshold(120.0);
+  downbeatDetector.setSideRatio(1.5);
+  downbeatDetector.setMinInterval(700); 
+
 
   // ----- テンポ計算の設定（★必要なら実測で調整）-----
   tempo.setBeatsPerMeasure(2);                  // 2拍子
-  tempo.setThresholds(100.0, 130.0);            // 100未満SLOW / 130以上FAST
-                                                // SLOWを出しやすくするため境界を80→100に上げた。
-                                                // 100=間隔1200ms（約1.2秒）でSLOWになる。
-                                                // もっと出しやすく→105まで上げてOK。
-                                                // （ただし108以上にすると普通の振りもSLOWになるので注意）
+  tempo.setThresholds(130.0, 160.0);            // 130未満SLOW / 160以上FAST
+
 
   // シリアルモニタの見出し（CSVとして表計算に貼れる）
   Serial.println("time,interval,bpm,level,send");
