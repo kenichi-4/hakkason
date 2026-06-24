@@ -28,12 +28,12 @@ void setup() {
   downbeatDetector.setDirection(-1);
   downbeatDetector.setDownGyroThreshold(120.0);
   downbeatDetector.setSideRatio(1.5);
-  downbeatDetector.setMinInterval(700); 
+  downbeatDetector.setMinInterval(500); 
 
 
   // ----- テンポ計算の設定（★必要なら実測で調整）-----
   tempo.setBeatsPerMeasure(2);                  // 2拍子
-  tempo.setThresholds(130.0, 160.0);            // 130未満SLOW / 160以上FAST
+  tempo.setThresholds(140.0, 170.0);            // 130未満SLOW / 160以上FAST
 
 
   // シリアルモニタの見出し（CSVとして表計算に貼れる）
