@@ -2,37 +2,24 @@
 #define BEAT_DETECTOR_H
 
 #include <Arduino.h>
-#include "IMUReader.h"
 
 class BeatDetector {
 public:
   BeatDetector();
 
-  // ダウンビートが検出されたら true を返す
-  bool update(IMUData data, float smoothMotion, unsigned long now);
+  // motionValue の最大値を保存し、downbeatDetected が true の時に1拍分のピーク値を確定する
+  bool update(float motionValue, bool downbeatDetected);
 
-  // 前回のダウンビート区間での最大ピーク値を返す
+  // 前回の1拍区間での最大ピーク値を返す
   float getPeakValue();
 
-  // 調整用
-  void setMotionThreshold(float value);
-  void setGyroThreshold(float value);
-  void setDownbeatInterval(unsigned long value);
+  // ピーク値をリセットする
+  void reset();
 
 private:
-  float motionThreshold;
-  float gyroThreshold;
-  unsigned long downbeatInterval;
-
-  unsigned long lastDownbeatTime;
-
   float peakValue;
   float outputPeakValue;
-
   bool firstDownbeat;
-
-  bool detectDownbeat(IMUData data, float smoothMotion, unsigned long now);
-  float getMaxGyro(IMUData data);
 };
 
 #endif
