@@ -120,3 +120,15 @@ void SensorSender::sendTempo(float bpm, int level) {
   // Current sync controller protocol receives 1, 2, or 3 as one line.
   client.print(String(level) + "\n");
 }
+
+void SensorSender::sendStop() {
+  if (!isReady()) {
+    return;
+  }
+
+  Serial.println("Send STOP");
+
+  // ★同期コントローラ側が "STOP" をどう受け取るかは要確認。
+  //   もし別の文字列（例 "0" や "END"）を期待するなら、ここを合わせる。
+  client.print("STOP\n");
+}

@@ -15,6 +15,7 @@ public:
 
   void sendStart();
   void sendTempo(float bpm, int level);
+  void sendStop();
 
 private:
   WiFiClient client;
